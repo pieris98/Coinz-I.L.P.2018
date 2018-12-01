@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Coinz</string>
+    <string name="e_mail_address">E-mail Address</string>
+    <string name="signUp">Don\'t have an account yet? Click here!</string>
+    <string name="signIn">Already have an account? Click here to Sign In!</string>
+    <string name="signInTitle">Sign-in to your account</string>
+    <string name="registerButton">Register</string>
+    <string name="registerTitle">Create an Account</string>
+    <string name="enter_e_mail">Enter your E-mail Address</string>
+    <string name="enter_password">Enter your password</string>
+    <string name="confirm_password">Confirm your password</string>
+    <string name="logo">Logo</string>
+    <string name="password">Password</string>
+    <string name="welcome">Welcome!</string>
+    <string name="classicMode">Classic Mode</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="challengeMode">Challenge Mode</string>
+    <string name="coinFeverMode">Coin Fever Mode</string>
+    <string name="signOut">Sign Out</string>
+    <string name="access_token">pk.eyJ1IjoicGllcmlzOTgiLCJhIjoiY2pwM2hqOXduMGdsNDN3cGg3M3p2N2NkMCJ9.qOP_Cam37vXIex-8mg4kNg</string>
+    <string name="user_location_permission_explanation">This app needs location permissions in order to show its functionality.</string>
+    <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
+</resources>

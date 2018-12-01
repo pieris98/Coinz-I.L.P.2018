@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/holo_orange_light">
+
     <ImageView
         android:id="@+id/Logo3"
         android:layout_width="241dp"
@@ -26,9 +27,9 @@
         android:layout_height="72dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/holo_blue_dark"
+        android:background="@drawable/roundshape"
+        android:backgroundTint="@android:color/holo_blue_dark"
         android:text="@string/classicMode"
         android:textColor="@android:color/white"
         android:textSize="18sp"
@@ -47,7 +48,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/holo_red_dark"
+        android:background="@drawable/roundshape"
+        android:backgroundTint="@android:color/holo_red_dark"
         android:text="@string/coinFeverMode"
         android:textColor="@android:color/white"
         android:textSize="18sp"
@@ -66,7 +68,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/holo_green_dark"
+        android:background="@drawable/roundshape"
+        android:backgroundTint="@android:color/holo_green_dark"
         android:text="@string/challengeMode"
         android:textColor="@android:color/white"
         android:textSize="18sp"
@@ -85,7 +88,8 @@
         android:layout_marginTop="11dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/holo_purple"
+        android:background="@drawable/roundshape"
+        android:backgroundTint="@android:color/holo_purple"
         android:text="@string/leaderboard"
         android:textColor="@android:color/white"
         android:textSize="18sp"
@@ -104,7 +108,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@android:color/holo_red_dark"
+        android:background="@drawable/roundshape"
         android:text="@string/signOut"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -113,6 +117,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+
 
     <TextView
         android:id="@+id/WelcomeText"
