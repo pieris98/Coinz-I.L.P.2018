@@ -54,7 +54,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
     private val tag="ClassicModeActivity"
 
     //elements needed to download map from inf.ed.ac.uk
-    private val arg_for_download = DownloadCompleteRunner
+    val arg_for_download = DownloadCompleteRunner
     private val link = DownloadFileTask(arg_for_download)
     private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -64,7 +64,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
     private val preferencesFile = "MyPrefsFile" // for storing preferences
 
     //elements needed for markers
-    private lateinit var markeropts : ArrayList<MarkerOptions>
+    private var markeropts : ArrayList<MarkerOptions>?=ArrayList()
     private lateinit var markers: ArrayList<Marker>
     private var user: FirebaseUser?=FirebaseAuth.getInstance().currentUser
 
@@ -82,10 +82,6 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
         mapView?.getMapAsync(this) //asynchronous taSk of getMap callback
         downloadDate = getCurrentDateTime().toString("yyyy/MM/dd") //reformat current date to store last date for URL download
         link.execute("http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson")
-        db.collection("users").document(user!!.uid).get().addOnSuccessListener {
-            collectedCoinz = it.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, Any>>?
-            Log.d(tag,"loadMarkers] Successfully fetched from Firestore previously collected coins in this day's session")
-        }
     }
 
     private fun getCurrentDateTime(): Date {
@@ -93,8 +89,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
     }
 
     //parse marker options from json file
-    private fun loadMarkers():ArrayList<MarkerOptions> {
-        val markopts = ArrayList<MarkerOptions>()
+    fun loadMarkers(){
         val json = File("/data/data/com.s1607754.user.coinz/files/coinzmap.geojson").readText(Charsets.UTF_8)
         //defining fc, f, g, p for the properties of each marker(feature) in the feature collection as explained in the slides
         val fc = FeatureCollection.fromJson(json).features()
@@ -111,11 +106,11 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
             val id = props.get("id").asString
             val value = props.get("value").asString
             val marker = MarkerOptions().title("$symbol $currency").snippet(id).position(x).icon(matchIcon(currency))
-            markopts.add(marker)
+            markeropts?.add(marker)
             val newCoin=HashMap<String,Any>()
-            newCoin["id"] = id
-            newCoin["currency"] = currency
-            newCoin["value"] = value
+            newCoin.put("id",id)
+            newCoin.put("currency",currency)
+            newCoin.put("value",value)
             allCoinz?.put(id,newCoin)
         }
         val ratesJson = JSONObject(json).getJSONObject("rates")
@@ -128,22 +123,16 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
         todayRates?.put("QUID",quid)
         todayRates?.put("PENY",peny)
         db.collection("users").document(user!!.uid).get().addOnSuccessListener {
+            //updating FireStore with today's currency rates
             it.reference.update("Rates", todayRates)
-            Log.d(tag,"loadMarkers] Successfully updated Firestore with today's rates")
+            Log.d(tag,"[loadMarkers] Successfully updated Firestore with today's rates")
         }
-        collectedCoinz?.forEach {
-            val id = it.key
-            val ids = markeropts.map { marker -> marker.snippet }
-            if (ids.contains(id)) {
-                markeropts.removeAt(ids.indexOf(id))
-                Log.d(tag, "[onCreate] Removed marker with id: $id from Map")
-            }
-        }
-        return markopts
+
+
     }
 
 
-    private fun matchIcon(currency:String):Icon{
+    fun matchIcon(currency:String):Icon{
         val id = when (currency) {
             //matching icons with colors specified in json file (inspected colors and recolored icons with the corresponding color codes for each currency)
             "DOLR" -> R.drawable.green_coin
@@ -165,11 +154,27 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
 
             map = mapboxMap
             map?.uiSettings?.isCompassEnabled=true
-            map?.uiSettings?.isZoomControlsEnabled = true
             enableLocation()
-            markeropts=loadMarkers()
-            mapView?.getMapAsync {_ ->
-                markers = map?.addMarkers(markeropts) as ArrayList
+            loadMarkers()
+            db.collection("users").document(user!!.uid).get().addOnSuccessListener {
+                //updating FireStore with today's currency rates
+                it.reference.update("Rates", todayRates)
+                Log.d(tag, "[loadMarkers] Successfully updated Firestore with today's rates")
+
+                //updating collected coins map from FireStore
+                collectedCoinz = it.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, Any>>?
+                Log.d(tag, "[loadMarkers] Successfully fetched from Firestore previously collected coins in this day's session")
+                collectedCoinz?.forEach {
+                    val id = it.key
+                    val ids = markeropts?.map { marker -> marker.snippet } as ArrayList<String>
+                    if (ids.contains(id)) {
+                        markeropts?.removeAt(ids.indexOf(id))
+                        Log.d(tag, "[onCreate] Removed marker with id: $id from Map")
+                    }
+                }
+                mapView?.getMapAsync {_ ->
+                    markers = map?.addMarkers(markeropts!!) as ArrayList
+                }
             }
         }
     }
@@ -230,7 +235,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
             originLocation = location
             setCameraPosition(originLocation)
             val latLng = LatLng(location.latitude, location.longitude)
-            for (marker in markeropts) {
+            for (marker in markeropts!!) {
                 val mPosition = marker.position
                 if (latLng.distanceTo(mPosition) <= 25) {
 
@@ -241,7 +246,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
                         collectedCoinz= it.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, Any>>?
                         val spares = it.get("SpareChange") as HashMap<String,HashMap<String,Any>>?
                         Toast.makeText(this, "You collected a coin worth ${marker.title}", Toast.LENGTH_LONG).show()
-                        markeropts.remove(marker)
+                        markeropts?.remove(marker)
 
                         if (collectedCoinz!!.size < 25) {
                             collectedCoinz?.put(id,nowCollected!!)
@@ -363,7 +368,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
         super.onLowMemory()
         mapView?.onLowMemory()
     }
-    private fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
+    fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
         val formatter = SimpleDateFormat(format, locale)
         return formatter.format(this)
     }

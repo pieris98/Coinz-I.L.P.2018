@@ -29,6 +29,8 @@ class SignInActivity : AppCompatActivity() {
                         if (!it.isSuccessful) return@addOnCompleteListener
                         Log.d("Login", "Successfully logged in user with uid: ${it.result?.user?.uid}")
                         finish()
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
                     }
                     .addOnFailureListener{
                         Log.d("Login", "Failed to login user: ${it.message}")

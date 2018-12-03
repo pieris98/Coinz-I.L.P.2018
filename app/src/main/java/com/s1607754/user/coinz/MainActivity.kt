@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
             //jump to SignInActivity to sign in
             val intent=Intent(this, SignInActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         //when user clicks button to sign out
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
             fAuth.signOut()
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         //when user clicks button to play Classic Mode
