@@ -18,6 +18,10 @@ class SignInActivity : AppCompatActivity() {
         signInbutton.setOnClickListener(){
             val email = emailText.text.toString()
             val password = passwordText.text.toString()
+            if(email.isNullOrEmpty()||password.isNullOrEmpty()){
+                Toast.makeText(this,"Please fill in your e-mail and password to sign in",Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             Log.d("Login", "Attempt login with email/pw: $email/***")
 
             fAuth.signInWithEmailAndPassword(email, password)

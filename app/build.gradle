@@ -49,7 +49,7 @@ dependencies {
     implementation('com.google.android.gms:play-services-location:15.0.1') {
         exclude group: "com.android.support"
     }
-    implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:6.7.1') {
+    implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:6.5.0') {
         exclude group: "com.android.support"
     }
     implementation('com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.2') {

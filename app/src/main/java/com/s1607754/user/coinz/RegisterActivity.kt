@@ -1,17 +1,20 @@
 package com.s1607754.user.coinz
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.s1607754.user.coinz.R
 import kotlinx.android.synthetic.main.activity_register.*
+import com.google.firebase.firestore.FirebaseFirestore
+
+//defining a class constructor for the User collection that will be stored in Firebase Firestore
+class FireUser(var uid:String, var email:String,var classicModeCollectedCoinz:HashMap<String,HashMap<String,Any>>,var Rates:HashMap<String,Double>,var SpareChange:HashMap<String,HashMap<String,Any>>)
 
 class RegisterActivity : AppCompatActivity() {
     private var fAuth=FirebaseAuth.getInstance()
+    private var db:FirebaseFirestore= FirebaseFirestore.getInstance()
+    private val tag="RegisterActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -19,7 +22,7 @@ class RegisterActivity : AppCompatActivity() {
             newRegister()
         }
         AlreadyAccountText.setOnClickListener {
-            Log.d("RegisterActivity", "Try to move back to login activity")
+            Log.d(tag, "Try to move back to login activity")
             finish()
         }
     }
@@ -36,8 +39,8 @@ class RegisterActivity : AppCompatActivity() {
             Toast.makeText(this, "Passwords don't match!", Toast.LENGTH_SHORT).show()
             return
         }
-        Log.d("RegisterActivity", "Email is: " + email)
-        Log.d("RegisterActivity", "Password: $password")
+        Log.d(tag, "Email is: $email")
+        Log.d(tag, "Password: $password")
 
         // Firebase Authentication to create a user with email and password
         fAuth.createUserWithEmailAndPassword(email, password)
@@ -45,14 +48,17 @@ class RegisterActivity : AppCompatActivity() {
                     if (!it.isSuccessful) return@addOnCompleteListener
 
                     // else if successful
-                    Log.d("Register", "Successfully created user with uid: ${it.result?.user?.uid}")
+                    Log.d(tag, "Successfully created user with uid: ${it.result?.user?.uid}")
+                    val user = FireUser(fAuth.uid ?: "", email, HashMap(), HashMap(),HashMap())
+                    val uid:String = user.uid
+                    db.collection("users").document(uid).set(user).addOnSuccessListener {
+                        Log.d(tag, "Successfully saved user collection to Firestore")
+                    }
                     finish()
-                }
-                .addOnFailureListener{
-                    Log.d("Register", "Failed to create user: ${it.message}")
+                }.addOnFailureListener{
+                    Log.d(tag, "Failed to create user: ${it.message}")
                     Toast.makeText(this, "Failed to create user: ${it.message}", Toast.LENGTH_SHORT).show()
                 }
+        }
     }
 
-
-}
