@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_bank"
+        android:icon="@drawable/bank_icon"
+        android:title="@string/bank"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_spare_change"
+        android:icon="@drawable/spare_change_icon"
+        android:title="@string/spare"
+        app:showAsAction="always" />
+
+</menu>

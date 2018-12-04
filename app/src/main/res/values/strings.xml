@@ -20,4 +20,6 @@
     <string name="access_token">pk.eyJ1IjoicGllcmlzOTgiLCJhIjoiY2pwM2hqOXduMGdsNDN3cGg3M3p2N2NkMCJ9.qOP_Cam37vXIex-8mg4kNg</string>
     <string name="user_location_permission_explanation">This app needs location permissions in order to show its functionality.</string>
     <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
+    <string name="bank">Bank</string>
+    <string name="spare">Spare Change</string>
 </resources>

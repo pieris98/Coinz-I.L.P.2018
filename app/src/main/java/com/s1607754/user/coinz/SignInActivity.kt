@@ -22,7 +22,7 @@ class SignInActivity : AppCompatActivity() {
                 Toast.makeText(this,"Please fill in your e-mail and password to sign in",Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
-            Log.d("Login", "Attempt login with email/pw: $email/***")
+            Log.d("Login", "Attempt login with: $email")
 
             fAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener {

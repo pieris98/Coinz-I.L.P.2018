@@ -6,6 +6,8 @@ import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -16,6 +18,7 @@ import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
 import com.mapbox.android.core.location.LocationEngineProvider
 import android.widget.Toast
+import android.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -31,6 +34,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
+import kotlinx.android.synthetic.main.activity_classic_mode.*
 import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
@@ -73,10 +77,12 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
     private var collectedCoinz:HashMap<String,HashMap<String,Any>>?=HashMap()
     private var todayRates:HashMap<String,Double>?=HashMap()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.access_token) )
         setContentView(R.layout.activity_classic_mode)
+        setSupportActionBar(my_toolbar)
         mapView = findViewById(R.id.mapboxMapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this) //asynchronous taSk of getMap callback
@@ -84,6 +90,11 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
         link.execute("http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson")
     }
 
+     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.my_menu, menu)
+        return true
+    }
     private fun getCurrentDateTime(): Date {
         return Calendar.getInstance().time
     }
@@ -113,6 +124,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
             newCoin.put("value",value)
             allCoinz?.put(id,newCoin)
         }
+        //parsing the rates of currencies for today and storing them locally
         val ratesJson = JSONObject(json).getJSONObject("rates")
         val shil = ratesJson.getString("SHIL").toDouble()
         val dolr = ratesJson.getString("DOLR").toDouble()
@@ -122,13 +134,6 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
         todayRates?.put("DOLR",dolr)
         todayRates?.put("QUID",quid)
         todayRates?.put("PENY",peny)
-        db.collection("users").document(user!!.uid).get().addOnSuccessListener {
-            //updating FireStore with today's currency rates
-            it.reference.update("Rates", todayRates)
-            Log.d(tag,"[loadMarkers] Successfully updated Firestore with today's rates")
-        }
-
-
     }
 
 
@@ -157,6 +162,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
             enableLocation()
             loadMarkers()
             db.collection("users").document(user!!.uid).get().addOnSuccessListener {
+
                 //updating FireStore with today's currency rates
                 it.reference.update("Rates", todayRates)
                 Log.d(tag, "[loadMarkers] Successfully updated Firestore with today's rates")
@@ -247,7 +253,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
                         val spares = it.get("SpareChange") as HashMap<String,HashMap<String,Any>>?
                         Toast.makeText(this, "You collected a coin worth ${marker.title}", Toast.LENGTH_LONG).show()
                         markeropts?.remove(marker)
-
+                        collectedCoinz?.put(id,nowCollected!!)
                         if (collectedCoinz!!.size < 25) {
                             collectedCoinz?.put(id,nowCollected!!)
                             it.reference.update("classicModeCollectedCoinz", collectedCoinz).addOnSuccessListener {
@@ -257,6 +263,7 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
                                 }
                             }
                          else {
+                            collectedCoinz!!.remove(id)
                             spares?.put(id,nowCollected!!)
                             it.reference.update("SpareChange", spares).addOnSuccessListener {
                                 Log.d(tag,"[onLocationChanged] Added Spare Coin to Firestore successfully")
@@ -264,14 +271,15 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
                                 Log.d(tag,"[onLocationChanged] Adding Spare Coin to Firestore FAILED")
                             }
                         }
-                    }
-                    mapView?.getMapAsync {_ ->
-                        markers.forEach { m ->
-                            if (m.snippet == marker.snippet) {
-                                map?.removeMarker(m)
+                        mapView?.getMapAsync {_ ->
+                            markers.forEach { m ->
+                                if (m.snippet == marker.snippet) {
+                                    map?.removeMarker(m)
+                                }
                             }
                         }
                     }
+
                 }
             }
         }
@@ -302,6 +310,25 @@ class ClassicModeActivity : AppCompatActivity(),OnMapReadyCallback,LocationEngin
     private fun setCameraPosition(location: Location) {
         val latlng = LatLng(location.latitude, location.longitude)
         map?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_bank -> {
+            // User chose the "Settings" item, show the app settings UI...
+            true
+        }
+
+        R.id.action_spare_change -> {
+            // User chose the "Favorite" action, mark the current item
+            // as a favorite...
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
     }
 
 //lifecycle methods below
