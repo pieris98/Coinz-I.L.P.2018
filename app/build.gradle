@@ -52,7 +52,7 @@ dependencies {
     implementation('com.mapbox.mapboxsdk:mapbox-android-sdk:6.5.0') {
         exclude group: "com.android.support"
     }
-    implementation('com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.2') {
+    implementation('com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.8.2') {
         exclude group: "com.android.support"
     }
     implementation 'com.google.firebase:firebase-firestore:17.0.1'

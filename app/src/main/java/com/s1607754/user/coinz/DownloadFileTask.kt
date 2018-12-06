@@ -40,8 +40,8 @@ class DownloadFileTask(private val caller : DownloadCompleteListener) : AsyncTas
         super.onPostExecute(result)
         caller.downloadComplete(result)
     }
-    private fun writeJsonLocally( data:String,name:String){
-        val writePath="/data/data/com.s1607754.user.coinz/files/$name"
+    private fun writeJsonLocally(data:String, name:String){
+        val writePath= "/data/data/com.s1607754.user.coinz/files/$name"
         val file=File(writePath)
         file.writeText(data)
     }

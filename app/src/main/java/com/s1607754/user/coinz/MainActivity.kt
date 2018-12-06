@@ -39,6 +39,13 @@ class MainActivity : AppCompatActivity() {
             val intent=Intent(this, ClassicModeActivity::class.java)
             startActivity(intent)
         }
+
+        //when user clicks button to go to Bank
+        BankButton.setOnClickListener(){
+            val intent=Intent(this, Bank::class.java)
+            startActivity(intent)
+        }
+
     }
 
 }

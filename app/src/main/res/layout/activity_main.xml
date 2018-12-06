@@ -61,7 +61,7 @@
         app:layout_constraintVertical_bias="0.628" />
 
     <Button
-        android:id="@+id/ChallengeModeButton"
+        android:id="@+id/BankButton"
         android:layout_width="272dp"
         android:layout_height="72dp"
         android:layout_marginStart="8dp"
@@ -70,7 +70,7 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/roundshape"
         android:backgroundTint="@android:color/holo_green_dark"
-        android:text="@string/challengeMode"
+        android:text="@string/bank"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"

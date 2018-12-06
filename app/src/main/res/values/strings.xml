@@ -22,4 +22,6 @@
     <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
     <string name="bank">Bank</string>
     <string name="spare">Spare Change</string>
+    <string name="title_activity_bank">Bank</string>
+    <string name="view_hide_string">View/Hide Coins</string>
 </resources>

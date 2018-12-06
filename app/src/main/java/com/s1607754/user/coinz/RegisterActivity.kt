@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.activity_register.*
 import com.google.firebase.firestore.FirebaseFirestore
 
 //defining a class constructor for the User collection that will be stored in Firebase Firestore
-class FireUser(var uid:String, var email:String,var classicModeCollectedCoinz:HashMap<String,HashMap<String,Any>>,var Rates:HashMap<String,Double>,var SpareChange:HashMap<String,HashMap<String,Any>>)
+private class FireUser(var uid:String, var email:String, var classicModeCollectedCoinz:HashMap<String,HashMap<String,Any>>, var Rates:HashMap<String,Double>, var spareChange:HashMap<String,HashMap<String,Any>>,var spareChangeToSend:HashMap<String,HashMap<String,Any>>,var ReceivedSpares:HashMap<String,HashMap<String,Any>>, var alreadyPlayed:Boolean,var bank:Double)
 
 class RegisterActivity : AppCompatActivity() {
     private var fAuth=FirebaseAuth.getInstance()
@@ -49,10 +49,10 @@ class RegisterActivity : AppCompatActivity() {
 
                     // else if successful
                     Log.d(tag, "Successfully created user with uid: ${it.result?.user?.uid}")
-                    val user = FireUser(fAuth.uid ?: "", email, HashMap(), HashMap(),HashMap())
+                    val user = FireUser(fAuth.uid ?: "", email, HashMap(), HashMap(),HashMap(), HashMap(),HashMap(),false,0.0)
                     val uid:String = user.uid
-                    db.collection("users").document(uid).set(user).addOnSuccessListener {
-                        Log.d(tag, "Successfully saved user collection to Firestore")
+                    db.collection("users").document(uid).set(user).addOnSuccessListener {_->
+                        Log.d(tag, "Successfully saved user with email ${user.email} collection to FireStore")
                     }
                     finish()
                 }.addOnFailureListener{

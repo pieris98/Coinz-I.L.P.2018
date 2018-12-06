@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/view_all_coins"
+        android:title="Show all coins" />
+    <item
+        android:id="@+id/view_shil"
+        android:title="Show only SHIL coins" />
+    <item
+        android:id="@+id/view_dolr"
+        android:title="Show only DOLR coins" />
+    <item
+        android:id="@+id/view_peny"
+        android:title="Show only PENY coins" />
+    <item
+        android:id="@+id/view_quid"
+        android:title="Show only QUID coins" />
+</menu>
