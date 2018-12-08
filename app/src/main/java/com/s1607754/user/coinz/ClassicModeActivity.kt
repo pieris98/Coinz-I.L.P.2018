@@ -238,10 +238,9 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
                         Log.d(tag, "[onCreate] Removed marker with id: $id from Map")
                     }
                 }
-                markeroptsbonus?.clear()
                 markeroptsbonus?.addAll(markeropts!!)
                 mapView?.getMapAsync { _ ->
-                    markers = map?.addMarkers(markeroptsbonus!!) as ArrayList
+                    markers = map?.addMarkers(markeropts!!) as ArrayList
                 }
             }
         }
