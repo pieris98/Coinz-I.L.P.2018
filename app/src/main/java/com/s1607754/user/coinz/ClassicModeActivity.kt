@@ -82,6 +82,9 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
     private var spares: HashMap<String, HashMap<String, String>>? = HashMap()
     private var sparesToSend: HashMap<String, HashMap<String, String>>? = HashMap()
 
+    //flag to check if user tossed spare change today for 75% Fine to be applied to him on any received spare coins
+    private var tossed=false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Restore preferences
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
@@ -103,16 +106,28 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
                 todayRates = snapshot.get("rates") as HashMap<String, Double>?
                 //retrieving last day's collected coins from FireStore
                 collectedCoinz = snapshot.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, String>>?
+                //retrieve tossed spare coins flag from FireStore
+                tossed= snapshot.getBoolean("tossed")!!
+                //retrieving last day's received spare coins from FireStore
                 var receivedSpares = snapshot.get("receivedSpares") as HashMap<String, HashMap<String, String>>?
+                //for each collected coin from last day(if any), calculate its GOLD value and add it to the bank of the user
                 collectedCoinz?.forEach {
                     val value = it.value["value"]
                     val currency = it.value["currency"]
                     bank += (value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
                 }
+                //for all received spare coins from last day(if any)
                 receivedSpares?.forEach {
                     val value = it.value["value"]
                     val currency = it.value["currency"]
+
+                    //BONUS FEATURE
+                    if(tossed){//if the user tossed spare coins on the last day, apply a 75% fine on the calculation of
+                        bank += 0.25*(value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
+                    }
+                    else{//else do not apply the 75% fine to the added GOLD value
                     bank += (value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
+                    }
                 }
                 collectedCoinz?.clear()
                 todayRates?.clear()
@@ -123,7 +138,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
                 snapshot.reference.update("spareChangeToSend", collectedCoinz)
                 snapshot.reference.update("receivedSpares", collectedCoinz)
                 snapshot.reference.update("bank", bank)
-
+                snapshot.reference.update("tossed",false)
             }
         }
         super.onCreate(savedInstanceState)

@@ -88,17 +88,38 @@
 
     <Button
         android:id="@+id/sendSpares"
-        android:layout_width="81dp"
+        android:layout_width="92dp"
         android:layout_height="61dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:background="@drawable/roundshape"
+        android:backgroundTint="@android:color/holo_green_dark"
         android:text="Send Spare Change!"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.305"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spareEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/spareEmail"
+        app:layout_constraintVertical_bias="0.555" />
+
+    <Button
+        android:id="@+id/tossSpares"
+        android:layout_width="92dp"
+        android:layout_height="61dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/roundshape"
+        android:text="Toss Spare Change!"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.729"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spareEmail"
+        app:layout_constraintVertical_bias="0.555" />
 </android.support.constraint.ConstraintLayout>
