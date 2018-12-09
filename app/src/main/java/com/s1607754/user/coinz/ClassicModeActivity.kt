@@ -131,7 +131,6 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
                 }
                 collectedCoinz?.clear()
                 todayRates?.clear()
-
                 snapshot.reference.update("classicModeCollectedCoinz", collectedCoinz)
                 snapshot.reference.update("rates", todayRates)
                 snapshot.reference.update("spareChange", collectedCoinz)
