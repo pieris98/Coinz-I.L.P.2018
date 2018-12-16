@@ -1,5 +1,6 @@
 package com.s1607754.user.coinz
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.Lifecycle
 import android.content.Context
 import android.content.Intent
@@ -43,7 +44,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-
+@Suppress("UNCHECKED_CAST")
+@SuppressLint("LogNotTimber")
 class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
     //map elements
@@ -59,9 +61,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
     //tag for current activity for logs
     private val tag = "ClassicModeActivity"
 
-    //elements needed to download map from inf.ed.ac.uk
-    private val argfordownload = DownloadCompleteRunner
-    private val link = DownloadFileTask(argfordownload)
+    //element to store Firestore database
     private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     //elements needed for settings and preferences
@@ -75,17 +75,22 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
     private var markeroptsbonus: ArrayList<MarkerOptions>? = ArrayList()
     private var user: FirebaseUser? = FirebaseAuth.getInstance().currentUser
 
-    //collected coins
+    //collected coins and spare change vars
     private var allCoinz: HashMap<String, HashMap<String, String>>? = HashMap()
     private var collectedCoinz: HashMap<String, HashMap<String, String>>? = HashMap()
     private var todayRates: HashMap<String, Double>? = HashMap()
     private var spares: HashMap<String, HashMap<String, String>>? = HashMap()
     private var sparesToSend: HashMap<String, HashMap<String, String>>? = HashMap()
 
-    //flag to check if user tossed spare change today for 75% Fine to be applied to him on any received spare coins
-    private var tossed=false
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Mapbox.getInstance(applicationContext, getString(R.string.access_token))
+        setContentView(R.layout.activity_classic_mode)
+        mapView = findViewById(R.id.mapboxMapView)
+        mapView?.onCreate(savedInstanceState)
+        mapView?.getMapAsync(this) //asynchronous task of getMap callback
+        my_toolbar.title = ""
+        setSupportActionBar(my_toolbar)
         // Restore preferences
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
         // use ”” as the default value (this might be the first time the app is run)
@@ -98,56 +103,8 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
         editor.putString("lastDownloadDate", downloadDate)
         // Apply the edits!
         editor.apply()
-        if (!downloadDate.equals(lastDownloadDate)) {
-            link.execute("http://homepages.inf.ed.ac.uk/stg/coinz/$downloadDate/coinzmap.geojson")
-            db.collection("users").document(user!!.uid).get().addOnSuccessListener { snapshot ->
-                var bank:Double= snapshot.get("bank") as Double
-                //retrieving last day's rates FireStore
-                todayRates = snapshot.get("rates") as HashMap<String, Double>?
-                //retrieving last day's collected coins from FireStore
-                collectedCoinz = snapshot.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, String>>?
-                //retrieve tossed spare coins flag from FireStore
-                tossed= snapshot.getBoolean("tossed")!!
-                //retrieving last day's received spare coins from FireStore
-                var receivedSpares = snapshot.get("receivedSpares") as HashMap<String, HashMap<String, String>>?
-                //for each collected coin from last day(if any), calculate its GOLD value and add it to the bank of the user
-                collectedCoinz?.forEach {
-                    val value = it.value["value"]
-                    val currency = it.value["currency"]
-                    bank += (value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
-                }
-                //for all received spare coins from last day(if any)
-                receivedSpares?.forEach {
-                    val value = it.value["value"]
-                    val currency = it.value["currency"]
 
-                    //BONUS FEATURE
-                    if(tossed){//if the user tossed spare coins on the last day, apply a 75% fine on the calculation of
-                        bank += 0.25*(value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
-                    }
-                    else{//else do not apply the 75% fine to the added GOLD value
-                    bank += (value?.toDouble()!!.times(todayRates?.get(currency)!!.toDouble()))
-                    }
-                }
-                collectedCoinz?.clear()
-                todayRates?.clear()
-                snapshot.reference.update("classicModeCollectedCoinz", collectedCoinz)
-                snapshot.reference.update("rates", todayRates)
-                snapshot.reference.update("spareChange", collectedCoinz)
-                snapshot.reference.update("spareChangeToSend", collectedCoinz)
-                snapshot.reference.update("receivedSpares", collectedCoinz)
-                snapshot.reference.update("bank", bank)
-                snapshot.reference.update("tossed",false)
-            }
-        }
-        super.onCreate(savedInstanceState)
-        Mapbox.getInstance(applicationContext, getString(R.string.access_token))
-        setContentView(R.layout.activity_classic_mode)
-        my_toolbar.title = ""
-        setSupportActionBar(my_toolbar)
-        mapView = findViewById(R.id.mapboxMapView)
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this) //asynchronous task of getMap callback
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -161,8 +118,9 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
     }
 
     //parse marker options from json file
+    @SuppressLint("SdCardPath")
     private fun loadMarkers() {
-        val json = File("/data/data/com.s1607754.user.coinz/files/coinzmap.geojson").readText(Charsets.UTF_8)
+        val json = File("/data/data/com.s1607754.user.coinz/coinzmap.json").readText(Charsets.UTF_8)
         //defining fc, f, g, p for the properties of each marker(feature) in the feature collection as explained in the slides
         val fc = FeatureCollection.fromJson(json).features()
         fc?.forEach {
@@ -225,7 +183,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
             map?.uiSettings?.isCompassEnabled = true
             enableLocation()
             loadMarkers()
-            @Suppress("UNCHECKED_CAST")
+
             db.collection("users").document(user!!.uid).get().addOnSuccessListener { snapshot ->
 
                 //updating FireStore with today's currency rates
@@ -299,7 +257,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
         } else {
             locationLayerPlugin = LocationLayerPlugin(mapView!!, map!!, locationEngine)
             locationLayerPlugin?.apply {
-                setLocationLayerEnabled(true)
+                isLocationLayerEnabled = true
                 cameraMode = CameraMode.TRACKING
                 renderMode = RenderMode.NORMAL
                 val lifecycle: Lifecycle = lifecycle
@@ -321,7 +279,6 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
 
                     val id = marker.snippet
                     val nowCollected = allCoinz?.get(id)
-                    @Suppress("UNCHECKED_CAST")
                     db.collection("users").document(user!!.uid).get().addOnSuccessListener { snapshot ->
                         collectedCoinz = snapshot.get("classicModeCollectedCoinz") as HashMap<String, HashMap<String, String>>?
                         spares = snapshot.get("spareChange") as HashMap<String, HashMap<String, String>>?
@@ -434,7 +391,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
             if ((it.itemId) == (R.id.view_dolr)) {
                 markeroptsbonus?.clear()
                 markeropts?.forEach {
-                    if (it.title.substringAfter(" ").equals("DOLR")) {
+                    if (it.title.substringAfter(" ") == "DOLR") {
                         markeroptsbonus?.add(it)
                     }
                 }
@@ -446,7 +403,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
             if ((it.itemId) == (R.id.view_shil)) {
                 markeroptsbonus?.clear()
                 markeropts?.forEach {
-                    if (it.title.substringAfter(" ").equals("SHIL")) {
+                    if (it.title.substringAfter(" ") == "SHIL") {
                         markeroptsbonus?.add(it)
                     }
                 }
@@ -458,7 +415,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
             if ((it.itemId) == (R.id.view_quid)) {
                 markeroptsbonus?.clear()
                 markeropts?.forEach {
-                    if (it.title.substringAfter(" ").equals("QUID")) {
+                    if (it.title.substringAfter(" ") == "QUID") {
                         markeroptsbonus?.add(it)
                     }
                 }
@@ -470,7 +427,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
             if ((it.itemId) == (R.id.view_peny)) {
                 markeroptsbonus?.clear()
                 markeropts?.forEach {
-                    if (it.title.substringAfter(" ").equals("PENY")) {
+                    if (it.title.substringAfter(" ") == "PENY") {
                         markeroptsbonus?.add(it)
                     }
                 }
@@ -544,7 +501,7 @@ class ClassicModeActivity : AppCompatActivity(), OnMapReadyCallback, LocationEng
         mapView?.onLowMemory()
     }
 
-    fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
+    private fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
         val formatter = SimpleDateFormat(format, locale)
         return formatter.format(this)
     }

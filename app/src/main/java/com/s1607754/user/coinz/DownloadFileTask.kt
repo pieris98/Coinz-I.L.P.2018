@@ -16,11 +16,14 @@ class DownloadFileTask(private val caller : DownloadCompleteListener) : AsyncTas
     private fun loadFileFromNetwork(urlString: String): String {
         val stream : InputStream = downloadUrl(urlString)
 // Read input from stream, build result as a string
-        val resultStream = StringBuilder()
-        BufferedReader(InputStreamReader(stream)).forEachLine { resultStream.append(it) }
-        val result = resultStream.toString()
-        writeJsonLocally(result,"coinzmap.geojson")
-        return result
+        val stringed=stream.use{
+            it.reader().use{
+                it.readText()
+            }
+        }
+
+        writeJsonLocally(stringed)
+        return stringed
     }
 
     // Given a string representation of a URL, sets up a connection and gets an input stream.
@@ -36,15 +39,16 @@ class DownloadFileTask(private val caller : DownloadCompleteListener) : AsyncTas
         conn.connect() // Starts the query
         return conn.inputStream
     }
+    private fun writeJsonLocally(data:String){
+        val writePath= "/data/data/com.s1607754.user.coinz/coinzmap.json"
+        val file=File(writePath)
+        file.writeText(data)
+    }
     override fun onPostExecute(result: String) {
         super.onPostExecute(result)
         caller.downloadComplete(result)
     }
-    private fun writeJsonLocally(data:String, name:String){
-        val writePath= "/data/data/com.s1607754.user.coinz/files/$name"
-        val file=File(writePath)
-        file.writeText(data)
-    }
+
 
 
 } // end class DownloadFileTask

@@ -28,7 +28,8 @@
             android:label="@string/title_activity_bank"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".SpareActivity" />
-        <activity android:name=".FeverModeActivity"></activity>
+        <activity android:name=".FeverModeActivity" />
+        <activity android:name=".LeaderboardActivity"></activity>
     </application>
 
 </manifest>

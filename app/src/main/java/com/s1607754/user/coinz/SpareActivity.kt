@@ -1,5 +1,6 @@
 package com.s1607754.user.coinz
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -18,6 +19,7 @@ class SpareActivity : AppCompatActivity() {
     private var db = FirebaseFirestore.getInstance()
     private var user = FirebaseAuth.getInstance().currentUser
     private var tossed: Boolean = false
+    @SuppressLint("LogNotTimber")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spare)

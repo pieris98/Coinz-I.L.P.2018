@@ -1,24 +1,25 @@
 package com.s1607754.user.coinz
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.s1607754.user.coinz.R.id.*
 import kotlinx.android.synthetic.main.activity_signin.*
-
+@SuppressLint("LogNotTimber")
 class SignInActivity : AppCompatActivity() {
  private var fAuth=FirebaseAuth.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signin)
 
-        signInbutton.setOnClickListener(){
+        signInbutton.setOnClickListener{
             val email = emailText.text.toString()
             val password = passwordText.text.toString()
-            if(email.isNullOrEmpty()||password.isNullOrEmpty()){
+            if(email.isEmpty()||password.isEmpty()){
                 Toast.makeText(this,"Please fill in your e-mail and password to sign in",Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
